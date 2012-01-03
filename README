@@ -1,0 +1,37 @@
+Introduction
+This covert backdoor program was designed as an educational experiment and was intended to facilitate the educational experience of the student developer who constructed it. The student developer who constructed this software is not responsible for any damage cause by use of this software whether the use was or was not contradictory to the developers original intentions.
+This user guide will outline the components of this covert backdoor program, how to compile them, as well as how to use the software.
+Components
+The assignment software is made up of two distinct parts, the backdoor software and the client. The backdoor source code is located in the “BD_src” directory and has the following files:
+•	bd.c
+•	covert.c
+•	covert.h
+•	pcapfuncs.c
+•	pcapfuncs.h
+•	pkthandler.c
+•	pkhandler.h
+•	stealth.c
+•	stealth.h
+The client is actually three parts. There is the results listener which is a program that listens for and displays results to commands sent to the backdoor from the client. The actual communication is handled by a script taken from COMP 8505 notes on Stealth Backdoors. This script utilizes a small program that XOR's any string given to it, a program also taken from COMP 8505 notes. The client components are located in the client_src directory and it contains the following files:
+•	sendcmd.sh
+•	listener.c
+•	xor.c
+
+Building The Software
+Client:
+The listner and XOR program must be compiled separately. No special libraries are required. The XOR program must be named “xor_string” other wise the shell script will not be able to xor the command string. It doesn't matter what name the listener is given. Use the following commands:
+gcc -o xor_string xor.c
+gcc -o listener listener.c
+Server:
+Before building the server you must change the values of PORT and HOST in the pkthandler.h file to the machine where the client will reside. To build the server compile and link the contents of the BD_src directory with the following command:
+gcc -o bd *.c -lpcap
+Libpcap is required to build the backdoor.
+
+Using The Software
+In order to use the backdoor software, the backdoor must be running on the target machine. Unfortunately the privilege elevation function of the program doesn't work properly, so the backdoor must be given root privileges prior to running. This can be done by logging in as root or using su or sudo. To start the backdoor use the following command:
+./bd “<filter>”
+The default protocol and ports used are UDP and port 53 for that reason the filter should be
+./bd udp dst port 53
+Once the backdoor is running then it is available to receive commands from a client. Before running the “sendcmd.sh” shell script its recommended that the listener be started first so that responses from the backdoor can be captured and outputted. To use the shell script simply give the script two arguments; the IP address of the backdoor program and the command in quotes. For example:
+sh sendcmd.sh 192.168.0.100 “ifconfig”
+
